@@ -75,7 +75,7 @@ func setupTest(t *testing.T, fn func(*Config)) (
 	rootConn, rootClient, _ = newClient(config.RootClientCertFile, config.RootClientKeyFile)
 
 	var nobodyConn *grpc.ClientConn
-	nobodyConn, nobodyClient, _ = newClient(config.NoBodyClientCertFile, config.NoBodyClientCertFile)
+	nobodyConn, nobodyClient, _ = newClient(config.NoBodyClientCertFile, config.NoBodyClientKeyFile)
 
 	serverTLSConfig, err := config.SetupTLSConfig(config.TLSConfig{
 		CertFile:      config.ServerCertFile,
