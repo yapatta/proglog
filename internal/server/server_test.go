@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"net"
 	"os"
@@ -12,11 +13,26 @@ import (
 	"github.com/yapatta/proglog/internal/auth"
 	"github.com/yapatta/proglog/internal/config"
 	"github.com/yapatta/proglog/internal/log"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 )
+
+var debug = flag.Bool("debug", false, "Enable observability for debugging.")
+
+func TestMain(m *testing.M) {
+	flag.Parse()
+	if *debug {
+		logger, err := zap.NewDevelopment()
+		if err != nil {
+			panic(err)
+		}
+		zap.ReplaceGlobals(logger)
+	}
+	os.Exit(m.Run())
+}
 
 func TestServer(t *testing.T) {
 	for scenario, fn := range map[string]func(
