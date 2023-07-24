@@ -31,7 +31,7 @@ func (r *Replicator) Join(name, addr string) error {
 	}
 
 	if _, ok := r.servers[name]; ok {
-		// already replicated
+		// already joined
 		return nil
 	}
 	r.servers[name] = make(chan struct{})
@@ -68,6 +68,8 @@ func (r *Replicator) replicate(addr string, leave chan struct{}) {
 			select {
 			case <-r.close:
 				return
+			case <-leave:
+				return
 			default:
 				recv, err := stream.Recv()
 				if err != nil {
@@ -75,7 +77,6 @@ func (r *Replicator) replicate(addr string, leave chan struct{}) {
 					return
 				}
 				records <- recv.Record
-
 			}
 		}
 	}()
@@ -100,6 +101,7 @@ func (r *Replicator) replicate(addr string, leave chan struct{}) {
 	}
 }
 
+// member leave from name
 func (r *Replicator) Leave(name string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -124,6 +126,7 @@ func (r *Replicator) init() {
 	}
 }
 
+// close replicator itself
 func (r *Replicator) Close() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
